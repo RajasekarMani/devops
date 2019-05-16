@@ -77,7 +77,7 @@
 # sudo apt-get install docker-compose
 - name: Install docker-compose
   apt:
-    name: docker-compose
+    name: docker-compose=1.24.0
     state: present
     update_cache: yes
   tags:

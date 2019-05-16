@@ -2,7 +2,7 @@
 # This playbook sets up whole stack.
  
 - name: Configurations to "remote" host
-  hosts: servers
+  hosts: all
   remote_user: root # Remote user
   become: yes
   roles:
