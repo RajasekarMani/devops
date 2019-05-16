@@ -1,0 +1,17 @@
+version: "3.7"
+services:
+  jenkins:
+    build: .
+    ports:
+      - 80:8080
+      - 50000:50000
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/docker_compose:/tmp/docker_compose
+    environment:
+      - CASC_JENKINS_CONFIG=/tmp/docker_compose/jenkins.yml
+volumes:
+  jenkins_data:
+    driver: local
+
