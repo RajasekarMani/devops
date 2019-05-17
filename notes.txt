@@ -1,0 +1,164 @@
+===========================================================================================================================
+https://github.com/RajasekarMani/automation-tests.git
+===========================================================================================================================
+infastructure management
+application management
+log aggregation
+monitoring
+billing
+
+project based matrix - job level
+audit trail
+
+/etc/passwd
+/etc/ssh/sshd_config
+/etc/apt/sources.d.list
+
+By default logs should be made available in /var/log/jenkins/jenkins.log, unless customized in /etc/default/jenkins (for *.deb) or via /etc/sysconfig/jenkins (for */rpm)
+
+google-ssh {"userName":"rajasekar","expireOn":"2019-05-19T05:37:33+0000"}
+
+You can go to /etc/default/jenkins and add --httpPort=9999 or whatever port to JENKINS_ARGS.
+Then you should restart Jenkins with sudo service jenkins restart.
+
+curl -O http://apache.mirror.anlx.net/maven/maven-3/3.5.0/binaries/apache-maven-3.5.0-bin.tar.gz
+curl -O http://ftp.osuosl.org/pub/funtoo/distfiles/oracle-java/jdk-8u131-linux-x64.tar.gz
+curl -O http://ftp.osuosl.org/pub/funtoo/distfiles/oracle-java/jdk-7u76-linux-x64.tar.gz
+
+chroot command
+port forwarding
+
+rolling update vs blue green deployment/Immutable
+Persistent Volumes
+Persistent Volumes Claim
+
+https://www.praqma.com/stories/start-jenkins-config-as-code/ 
+https://github.com/Praqma/praqma-jenkins-casc
+https://github.com/jenkinsci/configuration-as-code-plugin
+https://automatingguy.com/2018/09/25/jenkins-configuration-as-code/
+https://blog.trackets.com/2014/05/17/ssh-tunnel-local-and-remote-port-forwarding-explained-with-examples.html
+http://www.inanzzz.com/index.php/post/lvwk/installing-docker-and-docker-compose-on-remote-server-with-ansible
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/#kubectl-autocomplete
+https://read.acloud.guru/deploy-a-jenkins-cluster-on-aws-35dcf66a1eca
+https://dzone.com/articles/how-to-deploy-a-jenkins-cluster-on-aws-as-part-of
+https://www.tricksofthetrades.net/2017/10/02/ansible-local-playbooks/
+https://blog.snapt.net/cdn-vs-adc/
+https://docs.ansible.com/ansible/latest/user_guide/playbooks_conditionals.html
+https://docs.ansible.com/ansible/latest/modules/seboolean_module.html
+https://docs.ansible.com/ansible/latest/modules/elb_application_lb_module.html
+https://stedolan.github.io/jq/tutorial/
+
+Hardware vs. Software Load Balancing
+Content Delivery Networks (CDNs) and Application Delivery Controllers (ADCs) 
+nomad consul
+
+The Least Connection Method 
+The Round Robin Method
+The Least Response Time Method
+The Least Bandwidth Method 
+The Least Packets Method 
+The Custom Load Method
+
+Round Robin
+Weighted Round Robin
+Least Connection
+Weighted Least Connection
+Agent Based Adaptive Load Balancing
+Chained Failover (Fixed Weighted)
+Weighted Response Time
+Source IP Hash 
+===========================================================================================================================
+generic_commands
+---------------------------------------------------------------------------------------------------------------------------
+netstat -anp
+netstat -plntu
+
+iptables -A INPUT -i ens4 -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -i ens4 -p tcp --dport 8080 -j ACCEPT
+iptables -A PREROUTING -t nat -i ens4 -p tcp --dport 80 -j REDIRECT --to-port 8080
+
+ssh-keygen -t rsa -b 4096 -C "<EMAIL>"
+clip < id_rsa.pub
+===========================================================================================================================
+docker_commands
+---------------------------------------------------------------------------------------------------------------------------
+docker container ls
+docker history <IMAGE_NAME>
+docker commit <CONTAINER_NAME> <IMAGE_NAME>
+
+docker run -u root --name jenkins --rm -d -p 80:8080 -p 50000:50000 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -v `pwd`/downloads:/var/jenkins_home/downloads jenkinsci/blueocean
+
+docker run --rm -it -v jenkins-data:/tmp/jenkins-data alpine sh 
+
+attach to container and get the data out of a volume -> 
+docker run --rm --volumes-from jenkins -v $(pwd)/jenkins-data:/backup alpine tar cvf /backup/backup.tar /var/jenkins_home
+
+copy data volumes to another host -> 
+docker run --rm -v <SOURCE_DATA_VOLUME_NAME>:/from alpine ash -c "cd /from ; tar -cf - . " | ssh <TARGET_HOST> 'docker run --rm -i -v <TARGET_DATA_VOLUME_NAME>:/to alpine ash -c "cd /to ; tar -xpvf - " '
+
+docker network ls
+===========================================================================================================================
+docker_swarm_commands
+---------------------------------------------------------------------------------------------------------------------------
+docker swarm init --advertise-addr 10.160.0.10
+docker node ls
+docker service create --name webservice -p 80:80 nginx
+docker service ls
+docker service ps webservice
+docker service scale webservice=10
+
+Swarm initialized: current node (wm3fu6jm91u0sasnoxip2lbu5) is now a manager.
+To add a worker to this swarm, run the following command:
+    docker swarm join --token SWMTKN-1-2d0u395zbj6p9z9z7h0hj3f84nkn60nb1r4d8nv9akg7xzksr0-7w57h6v54mftt32hg6x395blb 10.160.0.10:2377
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+===========================================================================================================================
+kubernetes_commands
+---------------------------------------------------------------------------------------------------------------------------
+gcloud compute project-info add-metadata \
+    --metadata google-compute-default-region=asia-south1,google-compute-default-zone=asia-south1-c
+gcloud config set project local-mediator-240712
+gcloud compute instances list
+gcloud compute ssh <USERNAME>@<MACHINE>
+gcloud container clusters create k8s-cluster --zone=asia-south1-c
+gcloud container clusters delete k8s-cluster --zone=asia-south1-c
+
+kubectl create
+kubectl get pods
+kubectl describe pods <POD_NAME>
+
+kubectl create -f deployment.yaml
+kubectl get deployment
+kubectl describe deployment <DEPLOYMENT_NAME>
+
+kubectl get rs
+kubectl describe pods
+
+kubectl exec -it dep-ngnix-774f5f5b8f-xgq88 -- /bin/bash
+
+kubectl create -f deployment.yaml --record
+kubectl rollout status deployment <DEP_NAME>
+kubectl rollout history
+kubectl rollout undo deployment <DEP_NAME> --to-revision=<REVISION_NUMBER>
+===========================================================================================================================
+ansible_commands
+---------------------------------------------------------------------------------------------------------------------------
+ansible -m ping all
+ansible -m command -a "apt-get udpate" all
+ansible-doc command
+ansible -m setup host1 -a "filter=ansible_user*"
+ansible-playbook playbook.yml
+ansible-playbook playbook.yml --syntax-check
+ansible-playbook playbook.yml --check
+ansible-galaxy init <ROLE_NAME>
+===========================================================================================================================
+JCASC
+---------------------------------------------------------------------------------------------------------------------------
+jenkins:
+    # you configure the general information about Jenkins, like nodes or the security-related stuff
+tools:
+    # here goes everything from the Global Tools Configuration page, like Git, Maven, Gradle, Docker, etc.
+unclassified:
+    # we configure most of the plugin-specific settings under this element
+plugins:
+    # over here we can define what plugins JCasC will automatically install; note: it is a Beta feature for now
+===========================================================================================================================
